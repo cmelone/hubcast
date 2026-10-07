@@ -2,9 +2,8 @@ from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 
 import aiohttp
-import gidgetlab.aiohttp
 
-from hubcast.clients.utils import TokenCache
+from hubcast.clients.utils import GitLabAPI, TokenCache
 
 TOKEN_NAME = "hubcast-impersonation"  # nosec B105
 # api scope needed for reading pipelines, setting webhooks
@@ -58,7 +57,7 @@ class GitLabAuthenticator:
             user_id = await self._get_user_id(username)
 
             async with aiohttp.ClientSession() as session:
-                gl = gidgetlab.aiohttp.GitLabAPI(
+                gl = GitLabAPI(
                     session,
                     self.requester,
                     access_token=self.admin_token,
@@ -89,7 +88,7 @@ class GitLabAuthenticator:
     async def _get_user_id(self, username: str) -> int:
         """Retrieve the user ID for a given username from the GitLab instance."""
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 self.requester,
                 access_token=self.admin_token,

@@ -3,12 +3,13 @@ import urllib.parse
 from typing import Any, Literal
 
 import aiohttp
-import gidgetlab.aiohttp
+import gidgetlab.exceptions
 
 from hubcast.clients.gitlab.auth import (
     GitLabAuthenticator,
     GitLabSingleUserAuthenticator,
 )
+from hubcast.clients.utils import GitLabAPI
 from hubcast.exceptions import HubcastError, WebhookPermissionError
 from hubcast.webhook import RoutingToken
 
@@ -73,7 +74,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -107,7 +108,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(username=self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -161,7 +162,7 @@ class GitLabClient:
         }
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -206,7 +207,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -226,7 +227,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -250,7 +251,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -273,7 +274,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -297,7 +298,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,
@@ -315,7 +316,7 @@ class GitLabClient:
         gl_token = await self.auth.authenticate_user(self.user)
 
         async with aiohttp.ClientSession() as session:
-            gl = gidgetlab.aiohttp.GitLabAPI(
+            gl = GitLabAPI(
                 session,
                 requester=self.requester,
                 access_token=gl_token,

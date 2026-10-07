@@ -2,8 +2,10 @@ import logging
 from typing import Any
 
 import aiohttp
-from gidgethub import HTTPException
-from gidgethub import aiohttp as gh_aiohttp
+from gidgethub import HTTPException, QueryError
+
+from hubcast.clients.utils import GitHubAPI
+from hubcast.retry import retry_async
 
 from .auth import GitHubAuthenticator
 
@@ -100,7 +102,7 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             # get a list of the checks on a commit
             url = f"/repos/{self.repo_owner}/{self.repo_name}/commits/{ref}/check-runs"
@@ -133,7 +135,7 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             # get the contents of the repository hubcast.yml file
             url = f"/repos/{self.repo_owner}/{self.repo_name}/contents/{self.repo_config_path}"
@@ -156,7 +158,7 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             url = f"/repos/{self.repo_owner}/{self.repo_name}/pulls/{pr_number}/files"
             files = await gh.getitem(url)
@@ -169,7 +171,7 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             url = f"/repos/{self.repo_owner}/{self.repo_name}/pulls/{id}"
             return await gh.getitem(url)
@@ -182,7 +184,7 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             # https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
             # default is open pull requests
@@ -202,7 +204,7 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             url = f"/repos/{self.repo_owner}/{self.repo_name}/issues/{issue_number}/comments"
             await gh.post(url, data=payload)
@@ -230,11 +232,16 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             # graphql expects a string to represent the reaction
-            await gh.graphql(
-                mutation, subjectId=node_id, content=GH_REACTIONS[reaction]
+            # QueryError is HTTP200 so the session won't handle it
+            await retry_async(
+                lambda: gh.graphql(
+                    mutation, subjectId=node_id, content=GH_REACTIONS[reaction]
+                ),
+                (QueryError,),
+                name="GraphQL request",
             )
 
     async def get_branch(self, name: str) -> dict[str, Any]:
@@ -245,7 +252,7 @@ class GitHubClient:
         )
 
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(session, self.requester, oauth_token=gh_token)
+            gh = GitHubAPI(session, self.requester, oauth_token=gh_token)
 
             url = f"/repos/{self.repo_owner}/{self.repo_name}/branches/{name}"
             return await gh.getitem(url)
