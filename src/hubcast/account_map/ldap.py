@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_TIMEOUT = 5
 
-# transient failures woth retrying
+# transient failures worth retrying
 RETRYABLE_ERRORS = (
     ldap.SERVER_DOWN,
     ldap.TIMEOUT,
