@@ -13,7 +13,7 @@ from .abc import AccountMap
 
 log = logging.getLogger(__name__)
 
-DEFAULT_TIMEOUT = 5.0
+DEFAULT_TIMEOUT = 5
 
 # transient failures woth retrying
 RETRYABLE_ERRORS = (
@@ -26,7 +26,7 @@ RETRYABLE_ERRORS = (
 
 @contextmanager
 def ldap_connection(
-    uri: str, timeout: float = DEFAULT_TIMEOUT
+    uri: str, timeout: int = DEFAULT_TIMEOUT
 ) -> Generator[ldap.ldapobject.LDAPObject, None, None]:
     """
     Manages context for python-ldap connections.
@@ -67,7 +67,7 @@ class LDAPMap(AccountMap):
         optional DN for simple bind (falls back to GSSAPI if None)
     bind_password : str | None
         password for simple bind (ignored when using GSSAPI)
-    timeout : float
+    timeout : int
         timeout in seconds for operations
     """
 
@@ -80,7 +80,7 @@ class LDAPMap(AccountMap):
         search_scope: int,
         bind_dn: str | None = None,
         bind_password: str | None = None,
-        timeout: float = DEFAULT_TIMEOUT,
+        timeout: int = DEFAULT_TIMEOUT,
     ):
         self.uri = uri
         self.search_base = search_base

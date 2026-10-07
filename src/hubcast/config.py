@@ -87,7 +87,7 @@ class LDAPAccountMapConfig(BaseModel):
     bind_password: str | None = None
 
     # timeout in seconds for LDAP operations
-    timeout: float = Field(default=5, gt=0)
+    timeout: int = Field(default=5, gt=0)
 
 
 AccountMapConfig = Annotated[
