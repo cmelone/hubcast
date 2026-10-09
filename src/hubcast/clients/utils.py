@@ -1,11 +1,8 @@
 import asyncio
 import time
 from collections.abc import Awaitable, Callable, Mapping
-from functools import partial
 
 import aiohttp
-from gidgethub import aiohttp as gh_aiohttp
-from gidgetlab import aiohttp as gl_aiohttp
 
 from hubcast import retry
 
@@ -54,7 +51,7 @@ class TokenCache:
 Response = tuple[int, Mapping[str, str], bytes]
 
 
-async def _with_retries(
+async def with_retries(
     send: Callable[[], Awaitable[Response]], method: str, url: str
 ) -> Response:
     """Await send() and retry on connection errors, timeouts, and HTTP 429/502/503/504. Applies to all HTTP methods."""
@@ -70,23 +67,3 @@ async def _with_retries(
 
         await asyncio.sleep(retry.retry_delay(f"{method} {url}", attempt, reason))
     return await send()
-
-
-class GitHubAPI(gh_aiohttp.GitHubAPI):
-    """gidgethub's GitHubAPI with retried requests."""
-
-    async def _request(
-        self, method: str, url: str, headers: Mapping[str, str], body: bytes = b""
-    ) -> Response:
-        send = partial(super()._request, method, url, headers, body)
-        return await _with_retries(send, method, url)
-
-
-class GitLabAPI(gl_aiohttp.GitLabAPI):
-    """gidgetlab's GitLabAPI with retried requests."""
-
-    async def _request(
-        self, method: str, url: str, headers: Mapping[str, str], body: bytes = b""
-    ) -> Response:
-        send = partial(super()._request, method, url, headers, body)
-        return await _with_retries(send, method, url)

@@ -4,7 +4,8 @@ from datetime import UTC, datetime
 import aiohttp
 import gidgethub.apps as gha
 
-from hubcast.clients.utils import GitHubAPI, TokenCache
+import hubcast.clients.github.client as gh_client
+from hubcast.clients.utils import TokenCache
 
 # location for authenticated app to get a token for one of its installations
 # bandit thinks this is a hardcoded password, we ignore security checks on this line
@@ -36,7 +37,7 @@ class GitHubAuthenticator:
     async def get_installation_id(self, owner: str, repo: str) -> str:
         if (owner, repo) not in self._id_dict:
             async with aiohttp.ClientSession() as session:
-                gh = GitHubAPI(session, self.requester)
+                gh = gh_client.GitHubAPI(session, self.requester)
                 result = await gh.getitem(
                     f"/repos/{owner}/{repo}/installation",
                     accept="application/vnd.github+json",
@@ -57,7 +58,7 @@ class GitHubAuthenticator:
 
         async def renew_installation_token() -> tuple[int, str]:
             async with aiohttp.ClientSession() as session:
-                gh = GitHubAPI(session, self.requester)
+                gh = gh_client.GitHubAPI(session, self.requester)
 
                 # Use the JWT to get a limited-life OAuth token for a particular
                 # installation of the app. Note that we get a JWT only when
